@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudAttic — О нас</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        body {
+            background: #0B1020;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: white;
+        }
+
+        /* HEADER */
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(11, 16, 32, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+        }
+
+        .navbar {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #8B5CF6;
+            text-decoration: none;
+        }
+        
+        .logo:hover {
+            opacity: 0.8;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #8B5CF6;
+        }
+
+        .login-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            background: linear-gradient(
+                135deg,
+                #4F46E5,
+                #7C3AED
+            );
+            font-weight: bold;
+        }
+
+        /* HERO */
+
+        .hero {
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+
+            background:
+            radial-gradient(circle at top right,
+            rgba(124,58,237,0.3),
+            transparent 40%),
+            radial-gradient(circle at bottom left,
+            rgba(79,70,229,0.3),
+            transparent 40%);
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: #d1d5db;
+            margin-bottom: 40px;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            padding: 16px 36px;
+            border-radius: 14px;
+            background: linear-gradient(
+                135deg,
+                #4F46E5,
+                #7C3AED
+            );
+            color: white;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        /* ABOUT */
+
+        .section {
+            max-width: 1200px;
+            margin: auto;
+            padding: 80px 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+        }
+
+        .about-text {
+            max-width: 900px;
+            margin: auto;
+            text-align: center;
+            color: #d1d5db;
+            font-size: 1.1rem;
+        }
+
+        /* FEATURES */
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+            gap: 25px;
+            margin-top: 50px;
+        }
+
+        .card {
+            background: #141B34;
+            border: 1px solid rgba(124,58,237,0.15);
+            padding: 30px;
+            border-radius: 16px;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #7C3AED;
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            color: #a78bfa;
+        }
+
+        .card p {
+            color: #cbd5e1;
+        }
+
+        /* CTA */
+
+        .cta-section {
+            text-align: center;
+            padding: 100px 20px;
+            background: linear-gradient(
+                180deg,
+                transparent,
+                rgba(124,58,237,0.1)
+            );
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            color: #d1d5db;
+            margin-bottom: 30px;
+        }
+
+        /* FOOTER */
+
+        footer {
+            background: #070B16;
+            border-top: 1px solid rgba(124,58,237,0.2);
+            text-align: center;
+            padding: 30px;
+            color: #94a3b8;
+        }
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            border: none;
+        }
+
+        .user-menu {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-name {
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .dropdown {
+            position: absolute;
+            right: 0;
+            top: 50px;
+            background: #141B34;
+            border: 1px solid rgba(124,58,237,0.2);
+            border-radius: 12px;
+            min-width: 160px;
+            overflow: hidden;
+        }
+
+        .dropdown a {
+            display: block;
+            padding: 12px;
+            color: white;
+            transition: 0.2s;
+        }
+
+        .dropdown a:hover {
+            background: rgba(124,58,237,0.2);
+        }
+
+        .hidden {
+            display: none;
+        }
+        @media (max-width: 768px) {
+
+            .navbar {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+        }
+        .logout {
+            width: 100%;
+            background: transparent;
+            border: none;
+            text-align: left;
+            padding: 12px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout:hover {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        .dropdown form {
+            margin: 0;
+        }
+
+        .dropdown button {
+            width: 100%;
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 12px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+
+        .dropdown button:hover {
+            background: rgba(124, 58, 237, 0.2);
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <nav class="navbar">
+        <a href="/" class="logo">☁ CloudAttic</a>
+
+        <div class="nav-links">
+            <a href="/">О нас</a>
+            <a href="/contacts">Контакты</a>
+            <a href="/find">Найти файл</a>
+        </div>
+
+        <div class="auth-area">
+
+            <!-- 👤 ГОСТЬ -->
+            <div sec:authorize="isAnonymous()" class="auth-buttons">
+                <a href="/login" class="btn btn-primary">Войти</a>
+            </div>
+
+            <!-- 👤 АВТОРИЗОВАН -->
+            <div sec:authorize="isAuthenticated()" class="user-menu">
+
+                <div class="user-name" onclick="toggleDropdown()">
+                    👤 <span sec:authentication="name"></span> ▼
+                </div>
+
+                <div id="dropdown" class="dropdown hidden">
+                    <a href="/disk">Мой диск</a>
+
+                    <form action="/logout" method="post">
+                        <button type="submit">Выход</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </nav>
+</header>
+
+<section class="hero">
+    <div class="hero-content">
+        <h1>CloudAttic</h1>
+
+        <p>
+            Современный сервис для хранения и обмена файлами.
+            Загружайте документы, делитесь ссылками и получайте
+            доступ к данным в любое время.
+        </p>
+
+        <a href="/register" class="cta-btn">
+            Создать аккаунт
+        </a>
+    </div>
+</section>
+
+<section class="section">
+    <h2 class="section-title">О сервисе</h2>
+
+    <p class="about-text">
+        CloudAttic — это учебный проект облачного файлообменника,
+        позволяющий хранить файлы, управлять ими через личный кабинет
+        и делиться ссылками для скачивания. Проект демонстрирует
+        современные технологии веб-разработки и безопасную работу
+        с пользовательскими данными.
+    </p>
+
+    <div class="features">
+
+        <div class="card">
+            <h3>📁 Хранение файлов</h3>
+            <p>
+                Загружайте документы, изображения и другие данные
+                в облачное хранилище.
+            </p>
+        </div>
+
+        <div class="card">
+            <h3>🔗 Обмен ссылками</h3>
+            <p>
+                Создавайте ссылки для скачивания и делитесь ими
+                с другими пользователями.
+            </p>
+        </div>
+
+        <div class="card">
+            <h3>👤 Личный кабинет</h3>
+            <p>
+                Управляйте файлами и отслеживайте активность
+                через удобный интерфейс.
+            </p>
+        </div>
+
+        <div class="card">
+            <h3>🛡 Безопасность</h3>
+            <p>
+                Защита аккаунтов и авторизация пользователей
+                для безопасной работы с данными.
+            </p>
+        </div>
+
+    </div>
+</section>
+
+<section class="cta-section">
+    <h2>Начните пользоваться CloudAttic</h2>
+
+    <p>
+        Создайте аккаунт и получите доступ
+        к облачному хранилищу уже сегодня.
+    </p>
+
+    <a href="#" class="cta-btn">
+        Зарегистрироваться
+    </a>
+</section>
+
+<footer>
+    <p>© 2026 CloudAttic</p>
+    <p>Учебный проект по разработке веб-приложений</p>
+</footer>
+<script>
+function toggleDropdown() {
+    document.getElementById("dropdown").classList.toggle("hidden");
+}
+</script>
+</body>
+</html>

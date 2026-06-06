@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мой диск | CloudAttic</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI",sans-serif;
+}
+
+body{
+    background:#0B1020;
+    color:white;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+}
+
+/* HEADER */
+header{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:rgba(11,16,32,.95);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(124,58,237,.2);
+}
+
+.navbar{
+    max-width:1200px;
+    margin:auto;
+    padding:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    color:#8B5CF6;
+    text-decoration:none;
+    font-size:28px;
+    font-weight:bold;
+}
+
+.user-menu{ position:relative; cursor:pointer; }
+
+.user-name{
+    padding:10px 14px;
+    border-radius:10px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.1);
+}
+
+.dropdown{
+    position:absolute;
+    right:0;
+    top:50px;
+    background:#141B34;
+    border:1px solid rgba(124,58,237,.2);
+    border-radius:12px;
+    min-width:180px;
+    overflow:hidden;
+}
+
+.dropdown a,
+.logout-btn{
+    display:block;
+    width:100%;
+    padding:12px;
+    color:white;
+    text-decoration:none;
+    background:transparent;
+    border:none;
+    text-align:left;
+    cursor:pointer;
+}
+
+.dropdown a:hover,
+.logout-btn:hover{
+    background:rgba(124,58,237,.2);
+}
+
+.hidden{ display:none; }
+
+/* DISK */
+.disk-container{
+    flex:1;
+    max-width:1200px;
+    width:100%;
+    margin:auto;
+    padding:30px 20px;
+}
+
+.breadcrumb{
+    color:#cbd5e1;
+    margin-bottom:25px;
+}
+
+.files-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:20px;
+}
+
+.item{
+    background:#141B34;
+    border:1px solid rgba(124,58,237,.2);
+    border-radius:16px;
+    padding:25px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.item:hover{
+    transform:translateY(-3px);
+    border-color:#7C3AED;
+}
+
+.item-icon{ font-size:42px; margin-bottom:15px; }
+
+.item-name{ font-size:16px; word-break:break-word; }
+
+/* CONTEXT MENU */
+.context-menu{
+    position:fixed;
+    background:#141B34;
+    border:1px solid rgba(124,58,237,.2);
+    border-radius:12px;
+    overflow:hidden;
+    min-width:180px;
+    z-index:9999;
+}
+
+.context-menu button{
+    width:100%;
+    border:none;
+    background:none;
+    color:white;
+    padding:12px;
+    text-align:left;
+    cursor:pointer;
+}
+
+.context-menu button:hover{
+    background:rgba(124,58,237,.2);
+}
+.upload-btn{
+    background:#7C3AED;
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:15px;
+    font-weight:600;
+    transition:.2s;
+}
+
+.upload-btn:hover{
+    background:#8B5CF6;
+}
+.dropdown form {
+    margin: 0;
+}
+
+.dropdown button {
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 12px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
+    transition: 0.2s;
+}
+
+.dropdown button:hover {
+    background: rgba(124, 58, 237, 0.2);
+}
+.disk-topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+    gap:15px;
+}
+
+.disk-title{
+    font-size:22px;
+    font-weight:600;
+    color:#fff;
+}
+
+.disk-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.action-btn{
+    padding:10px 14px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:600;
+    color:white;
+    background:linear-gradient(135deg,#4F46E5,#7C3AED);
+    transition:0.2s;
+}
+
+.action-btn:hover{
+    transform:translateY(-2px);
+}
+
+.action-btn.secondary{
+    background:#1e2747;
+    border:1px solid rgba(124,58,237,.3);
+}
+/* DRAG & DROP ZONE */
+.drop-zone{
+    position:relative;
+    transition:0.2s;
+}
+
+.drop-zone.active{
+    outline:2px dashed #7C3AED;
+    background:rgba(124,58,237,0.08);
+    border-radius:16px;
+}
+
+.drop-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(11,16,32,0.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+    font-weight:600;
+    color:white;
+    z-index:9999;
+    opacity:0;
+    pointer-events:none;
+    transition:0.2s;
+}
+
+.drop-overlay.active{
+    opacity:1;
+    pointer-events:auto;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <nav class="navbar">
+        <a href="/" class="logo">☁ CloudAttic</a>
+        <div class="user-menu">
+            <!-- 👤 ГОСТЬ -->
+            <div sec:authorize="isAnonymous()" class="auth-buttons">
+                <a href="/login" class="btn btn-primary">Войти</a>
+            </div>
+
+            <!-- 👤 АВТОРИЗОВАН -->
+            <div sec:authorize="isAuthenticated()" class="user-menu">
+
+                <div class="user-name" onclick="toggleDropdown()">
+                    👤 <span sec:authentication="name"></span> ▼
+                </div>
+
+                <div id="dropdown" class="dropdown hidden">
+                    <a href="/disk">Мой диск</a>
+
+                    <form action="/logout" method="post">
+                        <button type="submit">Выход</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="disk-container drop-zone" id="dropZone">
+
+    <div class="disk-topbar">
+
+        <a href="/disk" class="disk-title">
+            📁 Мой диск
+        </a>
+
+        <div class="disk-actions">
+
+            <button class="action-btn"
+                    onclick="uploadFile()">
+                📤 Загрузить
+            </button>
+
+            <button class="action-btn"
+                    onclick="createFolder()">
+                📁 Создать папку
+            </button>
+            <button class="action-btn" onclick="uploadFolder()">
+                📁📤 Загрузить папку
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="files-grid">
+
+        <div th:each="file : ${files}"
+             class="item file"
+             th:attr="data-id=${file.id}">
+
+            <div class="item-icon">📄</div>
+
+            <div class="item-name"
+                 th:text="${file.originalName}">
+                file
+            </div>
+
+        </div>
+        <div th:each="folder : ${folders}"
+            class="item folder"
+            th:attr="data-id=${folder.id}">
+
+           <div class="item-icon">📁</div>
+
+           <div class="item-name"
+                th:text="${folder.name}">
+           </div>
+
+       </div>
+
+    </div>
+
+</main>
+    
+<form id="uploadForm"
+      action="/disk/upload"
+      method="post"
+      enctype="multipart/form-data"
+      style="display:none;">
+
+    <input id="fileInput"
+           type="file"
+           name="file">
+    <input id="folderInput"
+       type="file"
+       name="files"
+       webkitdirectory
+       directory
+       multiple
+       style="display:none;">
+
+</form>
+<!-- CONTEXT MENUS -->
+<div id="fileMenu" class="context-menu hidden">
+
+    <button onclick="downloadFile()">
+        📥 Скачать
+    </button>
+
+    <button onclick="openFile()">
+        👁 Открыть
+    </button>
+
+    <button onclick="copyLink()">
+        🔗 Поделиться
+    </button>
+
+    <button onclick="renameFile()">
+        ✏ Переименовать
+    </button>
+
+    <button onclick="deleteFile()">
+        🗑 Удалить
+    </button>
+
+</div>
+<div id="emptyMenu" class="context-menu hidden">
+    <button onclick="uploadFile()">
+        📤 Загрузить файл
+    </button>
+
+    <button onclick="createFolder()">
+        📁 Создать папку
+    </button>
+</div>
+
+<div id="folderMenu" class="context-menu hidden">
+
+    <button onclick="downloadFolder()">
+        📦 Скачать папку (как архив)
+    </button>
+
+    <button onclick="openFolder()">
+        📂 Открыть
+    </button>
+
+    <button onclick="renameFolder()">
+        ✏ Переименовать
+    </button>
+
+    <button onclick="deleteFolder()">
+        🗑 Удалить
+    </button>
+
+</div>
+<div id="dropOverlay" class="drop-overlay">
+    📤 Отпустите файл для загрузки
+</div>
+
+<script th:inline="javascript">
+    let currentFolderId = null;
+
+    /*[# th:if="${currentFolder != null}"]*/
+    currentFolderId = [[${currentFolder.id}]];
+    /*[/]*/
+</script>
+<script>
+
+let selectedFileId = null;
+let selectedFolderId = null;
+
+const fileMenu = document.getElementById("fileMenu");
+const emptyMenu = document.getElementById("emptyMenu");
+const folderMenu = document.getElementById("folderMenu");
+
+function toggleDropdown(){
+    document.getElementById("dropdown")
+        .classList.toggle("hidden");
+}
+
+function hideMenus(){
+    fileMenu.classList.add("hidden");
+    emptyMenu.classList.add("hidden");
+    folderMenu.classList.add("hidden");
+}
+
+document.addEventListener("click", hideMenus);
+
+document.addEventListener("contextmenu", function(e){
+
+    hideMenus();
+
+    const fileEl = e.target.closest(".file");
+    const folderEl = e.target.closest(".folder");
+
+    selectedFileId = null;
+    selectedFolderId = null;
+
+    let menu = emptyMenu;
+
+    if(fileEl){
+        selectedFileId =
+            fileEl.getAttribute("data-id");
+
+        menu = fileMenu;
+    }
+    else if(folderEl){
+        selectedFolderId =
+            folderEl.getAttribute("data-id");
+
+        menu = folderMenu;
+    }
+
+    e.preventDefault();
+
+    menu.style.left = e.pageX + "px";
+    menu.style.top = e.pageY + "px";
+
+    menu.classList.remove("hidden");
+});
+
+/* ---------- FILES ---------- */
+
+function downloadFile(){
+
+    if(!selectedFileId) return;
+
+    window.location.href =
+        "/disk/download/" + selectedFileId;
+}
+
+function openFile(){
+
+    if(!selectedFileId) return;
+
+    window.open(
+        "/disk/open/" + selectedFileId,
+        "_blank"
+    );
+}
+
+function copyLink(){
+
+    if(!selectedFileId) return;
+
+    fetch(
+        "/api/file/share/" + selectedFileId,
+        { method: "POST" }
+    )
+    .then(r => r.text())
+    .then(link => {
+
+        navigator.clipboard.writeText(link);
+
+        alert("Ссылка скопирована!");
+    });
+}
+
+function renameFile(){
+
+    if(!selectedFileId) return;
+
+    const newName =
+        prompt("Введите новое имя файла");
+
+    if(!newName) return;
+
+    fetch(
+        "/files/disk/rename/" + selectedFileId,
+        {
+            method:"POST",
+            headers:{
+                "Content-Type":
+                    "application/x-www-form-urlencoded"
+            },
+            body:
+                "name=" +
+                encodeURIComponent(newName)
+        }
+    )
+    .then(() => location.reload());
+}
+
+function deleteFile(){
+
+    if(!selectedFileId) return;
+
+    if(!confirm("Удалить файл?")){
+        return;
+    }
+
+    fetch(
+        "/files/disk/delete/" + selectedFileId,
+        {
+            method:"POST"
+        }
+    )
+    .then(() => location.reload());
+}
+
+/* ---------- UPLOAD ---------- */
+
+function uploadFile(){
+    const folderId = currentFolderId || null;
+
+    if (folderId) {
+        document.getElementById("uploadForm")
+            .action = "/disk/upload?folderId=" + folderId;
+    } else {
+        document.getElementById("uploadForm")
+            .action = "/disk/upload";
+    }
+
+    document.getElementById("fileInput").click();
+}
+document
+.getElementById("fileInput")
+.addEventListener("change", function(){
+
+    if(this.files.length > 0){
+
+        document
+            .getElementById("uploadForm")
+            .submit();
+    }
+});
+document.getElementById("folderInput")
+.addEventListener("change", function () {
+
+    if (!this.files.length) return;
+
+    const formData = new FormData();
+
+    for (let i = 0; i < this.files.length; i++) {
+        formData.append(
+            "files",
+            this.files[i],
+            this.files[i].webkitRelativePath
+        );
+    }
+
+    let url = "/disk/upload-folder";
+
+    if (currentFolderId) {
+        url += "?folderId=" + currentFolderId;
+    }
+
+    fetch(url, {
+        method: "POST",
+        body: formData
+    })
+    .then(() => location.reload())
+    .catch(() => alert("Ошибка загрузки папки"));
+});
+function uploadFolder() {
+    document.getElementById("folderInput").click();
+}
+/* ---------- FOLDERS ---------- */
+function createFolder() {
+    const name = prompt("Имя папки");
+    if(!name) return;
+
+    fetch("/folder/create", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: currentFolderId
+            ? "name=" + encodeURIComponent(name) + "&parentId=" + currentFolderId
+            : "name=" + encodeURIComponent(name)
+    })
+    .then(() => location.reload());
+}
+function downloadFolder() {
+
+    if (!selectedFolderId) return;
+
+    window.location.href =
+        "/folder/download/" + selectedFolderId;
+}
+
+function openFolder(){
+
+    if(!selectedFolderId) return;
+
+    window.location.href =
+        "/folder/" + selectedFolderId;
+}
+
+function renameFolder(){
+
+    if(!selectedFolderId) return;
+
+    const newName =
+        prompt("Новое имя папки");
+
+    if(!newName) return;
+
+    fetch(
+        "/folder/rename/" + selectedFolderId,
+        {
+            method:"POST",
+            headers:{
+                "Content-Type":
+                    "application/x-www-form-urlencoded"
+            },
+            body:
+                "name=" +
+                encodeURIComponent(newName)
+        }
+    )
+    .then(() => location.reload());
+}
+
+function deleteFolder(){
+
+    if(!selectedFolderId) return;
+
+    if(!confirm("Удалить папку?")){
+        return;
+    }
+
+    fetch(
+        "/folder/delete/" + selectedFolderId,
+        {
+            method:"POST"
+        }
+    )
+    .then(() => location.reload());
+}
+document.addEventListener("dblclick", function(e){
+
+    const fileEl = e.target.closest(".file");
+    const folderEl = e.target.closest(".folder");
+
+    if (folderEl) {
+        const id = folderEl.getAttribute("data-id");
+        window.location.href = "/folder/" + id;
+    }
+
+    if (fileEl) {
+        const id = fileEl.getAttribute("data-id");
+        window.open("/disk/open/" + id, "_blank");
+    }
+});
+const dropZone = document.getElementById("dropZone");
+const dropOverlay = document.getElementById("dropOverlay");
+const fileInput = document.getElementById("fileInput");
+const uploadForm = document.getElementById("uploadForm");
+
+/* ---------- DRAG ENTER ---------- */
+document.addEventListener("dragenter", (e) => {
+    e.preventDefault();
+    dropOverlay.classList.add("active");
+    dropZone.classList.add("active");
+});
+
+/* ---------- DRAG OVER ---------- */
+document.addEventListener("dragover", (e) => {
+    e.preventDefault();
+});
+
+/* ---------- DRAG LEAVE ---------- */
+document.addEventListener("dragleave", (e) => {
+
+    if (e.clientX === 0 && e.clientY === 0) {
+        dropOverlay.classList.remove("active");
+        dropZone.classList.remove("active");
+    }
+});
+
+/* ---------- DROP ---------- */
+document.addEventListener("drop", (e) => {
+    e.preventDefault();
+
+    dropOverlay.classList.remove("active");
+    dropZone.classList.remove("active");
+
+    const files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+
+    const formData = new FormData();
+
+    for (let i = 0; i < files.length; i++) {
+        formData.append("files", files[i]);
+    }
+
+    let url = "/disk/upload-folder";
+
+    if (currentFolderId) {
+        url += "?folderId=" + currentFolderId;
+    }
+
+    fetch(url, {
+        method: "POST",
+        body: formData
+    })
+    .then(() => location.reload())
+    .catch(() => alert("Ошибка загрузки"));
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Поиск файла | CloudAttic</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI",sans-serif;
+}
+
+body{
+    background:#0B1020;
+    color:white;
+    line-height:1.6;
+}
+
+/* HEADER */
+
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(11, 16, 32, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+}
+
+.navbar {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: #8B5CF6;
+    text-decoration:none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    text-decoration:none;
+    color:white;
+    transition:0.3s;
+}
+
+.nav-links a:hover {
+    color:#8B5CF6;
+}
+
+.auth-buttons {
+    display:flex;
+    gap:10px;
+}
+
+.btn {
+    padding:10px 14px;
+    border-radius:10px;
+    text-decoration:none;
+    color:white;
+}
+
+.btn-primary {
+    background:linear-gradient(135deg,#4F46E5,#7C3AED);
+}
+
+.user-menu {
+    position: relative;
+    cursor: pointer;
+}
+
+.user-name {
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.dropdown {
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background: #141B34;
+    border: 1px solid rgba(124,58,237,0.2);
+    border-radius: 12px;
+    min-width: 160px;
+    overflow: hidden;
+}
+
+.dropdown a {
+    display:block;
+    padding:12px;
+    color:white;
+    text-decoration:none;
+}
+
+.dropdown a:hover,
+.logout-btn:hover {
+    background:rgba(124,58,237,0.2);
+}
+
+.logout-btn {
+    width:100%;
+    padding:12px;
+    border:none;
+    background:transparent;
+    color:white;
+    text-align:left;
+    cursor:pointer;
+}
+
+.hidden{
+    display:none;
+}
+
+/* HERO */
+
+.hero{
+    padding:80px 20px;
+    text-align:center;
+
+    background:
+    radial-gradient(circle at top right,
+    rgba(124,58,237,.25),
+    transparent 40%),
+    radial-gradient(circle at bottom left,
+    rgba(79,70,229,.25),
+    transparent 40%);
+}
+
+.hero h1{
+    font-size:3rem;
+    margin-bottom:10px;
+}
+
+.hero p{
+    color:#cbd5e1;
+}
+
+/* SEARCH */
+
+.search-section{
+    max-width:900px;
+    margin:60px auto;
+    padding:0 20px;
+}
+
+.card{
+    background:#141B34;
+    border:1px solid rgba(124,58,237,.2);
+    border-radius:18px;
+    padding:35px;
+    margin-bottom:30px;
+}
+
+.card h2{
+    color:#a78bfa;
+    margin-bottom:20px;
+}
+
+.search-form{
+    display:flex;
+    gap:15px;
+}
+
+.search-form input{
+    flex:1;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background:#1e2747;
+    color:white;
+    font-size:15px;
+}
+
+.search-form input:focus{
+    outline:2px solid #7C3AED;
+}
+
+.search-form button{
+    padding:15px 30px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    color:white;
+    font-weight:bold;
+    background:linear-gradient(135deg,#4F46E5,#7C3AED);
+}
+
+.instruction-item{
+    margin-bottom:15px;
+    color:#cbd5e1;
+}
+
+/* FOOTER */
+
+footer{
+    background:#070B16;
+    border-top:1px solid rgba(124,58,237,.2);
+    text-align:center;
+    padding:30px;
+    color:#94a3b8;
+    margin-top:60px;
+}
+
+@media(max-width:768px){
+
+    .search-form{
+        flex-direction:column;
+    }
+
+    .navbar{
+        flex-direction:column;
+        gap:20px;
+    }
+
+    .nav-links{
+        flex-wrap:wrap;
+        justify-content:center;
+    }
+
+}
+
+</style>
+</head>
+<body>
+
+<header>
+    <nav class="navbar">
+
+        <a href="/" class="logo">☁ CloudAttic</a>
+
+        <div class="nav-links">
+            <a href="/">О нас</a>
+            <a href="/contacts">Контакты</a>
+            <a href="/files">Найти файл</a>
+        </div>
+
+        <div class="auth-area">
+
+            <div sec:authorize="isAnonymous()" class="auth-buttons">
+                <a href="/login" class="btn btn-primary">Войти</a>
+            </div>
+
+            <div sec:authorize="isAuthenticated()" class="user-menu">
+
+                <div class="user-name" onclick="toggleDropdown()">
+                    👤 <span sec:authentication="name"></span> ▼
+                </div>
+
+                <div id="dropdown" class="dropdown hidden">
+
+                    <a href="/disk">Мой диск</a>
+
+                    <form action="/logout" method="post">
+                        <button type="submit" class="logout-btn">
+                            Выход
+                        </button>
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>Поиск файла</h1>
+    <p>Получили ссылку на файл? Откройте его здесь.</p>
+</section>
+
+<section class="search-section">
+
+    <div class="card">
+
+        <h2>Открыть файл</h2>
+
+        <form id="openFileForm" class="search-form">
+
+            <input
+                type="text"
+                id="fileLink"
+                placeholder="Вставьте ссылку на файл">
+
+            <button type="submit">
+                Открыть
+            </button>
+
+        </form>>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Как пользоваться?</h2>
+
+        <div class="instruction-item">
+            🔗 Получите ссылку на файл от другого пользователя.
+        </div>
+
+        <div class="instruction-item">
+            📋 Скопируйте ссылку или идентификатор файла.
+        </div>
+
+        <div class="instruction-item">
+            🔍 Вставьте его в поле поиска выше.
+        </div>
+
+        <div class="instruction-item">
+            📥 Нажмите «Открыть» для перехода к странице скачивания.
+        </div>
+
+        <div class="instruction-item">
+            ☁ Чтобы загружать собственные файлы, войдите в аккаунт и откройте раздел «Мой диск».
+        </div>
+
+    </div>
+
+</section>
+
+<footer>
+    <p>© 2026 CloudAttic</p>
+    <p>Учебный проект по разработке веб-приложений</p>
+</footer>
+
+<script>
+function toggleDropdown() {
+    document.getElementById("dropdown").classList.toggle("hidden");
+}
+
+function toggleDropdown() {
+    document.getElementById("dropdown").classList.toggle("hidden");
+}
+
+document
+.getElementById("openFileForm")
+.addEventListener("submit", function(e){
+
+    e.preventDefault();
+
+    const link =
+        document.getElementById("fileLink")
+        .value
+        .trim();
+
+    if(!link){
+        alert("Введите ссылку");
+        return;
+    }
+
+    window.location.href = link;
+});
+
+</script>
+</body>
+</html>
+```
+

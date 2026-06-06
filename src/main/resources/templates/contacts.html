@@ -1,0 +1,357 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Контакты | CloudAttic</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI",sans-serif;
+}
+
+body{
+    background:#0B1020;
+    color:white;
+    line-height:1.6;
+}
+
+/* HEADER */
+
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(11, 16, 32, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+}
+
+.navbar {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: #8B5CF6;
+}
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    text-decoration:none;
+    color:white;
+    transition:0.3s;
+}
+
+.nav-links a:hover {
+    color:#8B5CF6;
+}
+
+.login-btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: linear-gradient(135deg,#4F46E5,#7C3AED);
+    color:white;
+    font-weight:bold;
+    text-decoration:none;
+}
+
+/* HERO */
+
+.hero {
+    padding: 80px 20px;
+    text-align: center;
+    background:
+    radial-gradient(circle at top right,
+    rgba(124,58,237,.25),
+    transparent 40%),
+    radial-gradient(circle at bottom left,
+    rgba(79,70,229,.25),
+    transparent 40%);
+}
+
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    color:#cbd5e1;
+}
+
+/* CONTAINER */
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 60px 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+/* INFO CARD */
+
+.card {
+    background:#141B34;
+    border:1px solid rgba(124,58,237,.2);
+    border-radius:18px;
+    padding:30px;
+}
+
+.card h2 {
+    margin-bottom:20px;
+    color:#a78bfa;
+}
+
+.info-item {
+    margin-bottom:15px;
+    color:#cbd5e1;
+}
+
+/* FORM */
+
+form {
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+input, textarea {
+    padding:14px;
+    border-radius:12px;
+    border:none;
+    background:#1e2747;
+    color:white;
+    font-size:14px;
+}
+
+textarea {
+    resize:none;
+    min-height:120px;
+}
+
+input:focus, textarea:focus {
+    outline:2px solid #7C3AED;
+}
+
+button {
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:bold;
+    color:white;
+    background:linear-gradient(135deg,#4F46E5,#7C3AED);
+}
+
+/* FOOTER */
+
+footer {
+    background:#070B16;
+    border-top:1px solid rgba(124,58,237,.2);
+    text-align:center;
+    padding:30px;
+    color:#94a3b8;
+    margin-top:60px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+    .container{
+        grid-template-columns:1fr;
+    }
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 14px;
+    border-radius: 10px;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg,#4F46E5,#7C3AED);
+}
+
+.user-menu {
+    position: relative;
+    cursor: pointer;
+}
+
+.user-name {
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.dropdown {
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background: #141B34;
+    border: 1px solid rgba(124,58,237,0.2);
+    border-radius: 12px;
+    min-width: 160px;
+    overflow: hidden;
+}
+
+.dropdown a {
+    display: block;
+    padding: 12px;
+    color: white;
+    text-decoration: none;
+}
+
+.dropdown a:hover,
+.logout-btn:hover {
+    background: rgba(124,58,237,0.2);
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 12px;
+    text-align: left;
+    border: none;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <nav class="navbar">
+        <a href="/" class="logo">☁ CloudAttic</a>
+        
+        <div class="nav-links">
+            <a href="/">О нас</a>
+            <a href="/contacts">Контакты</a>
+            <a href="/find">Найти файл</a>
+        </div>
+
+        <div class="auth-area">
+
+                <!-- Гость -->
+                <div sec:authorize="isAnonymous()" class="auth-buttons">
+                    <a href="/login" class="btn btn-primary">Войти</a>
+                </div>
+
+                <!-- Авторизованный -->
+                <div sec:authorize="isAuthenticated()" class="user-menu">
+
+                    <div class="user-name" onclick="toggleDropdown()">
+                        👤 <span sec:authentication="name"></span> ▼
+                    </div>
+
+                    <div id="dropdown" class="dropdown hidden">
+                        <a href="/disk">Мой диск</a>
+
+                        <form action="/logout" method="post" style="margin:0;">
+                            <button type="submit" class="logout-btn">
+                                Выход
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+
+        </div>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>Контакты</h1>
+    <p>Свяжитесь с нами любым удобным способом</p>
+</section>
+
+<section class="container">
+
+    <!-- INFO -->
+    <div class="card">
+
+        <h2>Информация</h2>
+
+        <div class="info-item">
+            📧 Email: support@cloudattic.com
+        </div>
+
+        <div class="info-item">
+            📞 Телефон: +7 (900) 000-00-00
+        </div>
+
+        <div class="info-item">
+            💬 Telegram: @cloudattic_support
+        </div>
+
+        <div class="info-item">
+            📍 Локация: Online (учебный проект)
+        </div>
+
+        <div class="info-item">
+            ⏰ Время ответа: 24–48 часов
+        </div>
+
+    </div>
+
+    <!-- FORM -->
+    <div class="card">
+
+        <h2>Обратная связь</h2>
+
+        <form>
+            <input type="text" placeholder="Ваше имя">
+            <input type="email" placeholder="Email">
+            <input type="text" placeholder="Тема обращения">
+
+            <textarea placeholder="Ваше сообщение"></textarea>
+
+            <button type="submit">
+                Отправить
+            </button>
+        </form>
+
+    </div>
+
+</section>
+
+<footer>
+    <p>© 2026 CloudAttic</p>
+    <p>Учебный проект по разработке веб-приложений</p>
+</footer>
+<script>
+function toggleDropdown() {
+    document.getElementById("dropdown").classList.toggle("hidden");
+}
+</script>
+</body>
+</html>

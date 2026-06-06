@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Вход | CloudAttic</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI",sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:
+    radial-gradient(circle at top right,
+    rgba(124,58,237,.3),
+    transparent 40%),
+    radial-gradient(circle at bottom left,
+    rgba(79,70,229,.3),
+    transparent 40%),
+    #0B1020;
+
+    color:white;
+}
+
+.container{
+    width:100%;
+    max-width:450px;
+    padding:20px;
+}
+
+.card{
+    background:#141B34;
+    border:1px solid rgba(124,58,237,.2);
+    border-radius:20px;
+    padding:40px;
+    backdrop-filter:blur(15px);
+}
+
+.logo{
+    text-align:center;
+    font-size:32px;
+    font-weight:bold;
+    color:#8B5CF6;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#cbd5e1;
+    margin-bottom:35px;
+}
+
+.form-group{
+    margin-bottom:20px;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+}
+
+input{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#1e2747;
+    color:white;
+    font-size:15px;
+}
+
+input:focus{
+    outline:2px solid #7C3AED;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:bold;
+    color:white;
+
+    background:linear-gradient(
+        135deg,
+        #4F46E5,
+        #7C3AED
+    );
+}
+
+.footer-link{
+    text-align:center;
+    margin-top:20px;
+    color:#cbd5e1;
+}
+
+.footer-link a{
+    color:#8B5CF6;
+    text-decoration:none;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <div class="logo">☁ CloudAttic</div>
+
+        <p class="subtitle">
+            Войдите в свой аккаунт
+        </p>
+
+        <form action="/login" method="post">
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email"
+                       name="email"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password"
+                       name="password"
+                       required>
+            </div>
+
+            <button type="submit">
+                Войти
+            </button>
+
+        </form>
+
+        <div class="footer-link">
+            Нет аккаунта?
+            <a href="/register">
+                Зарегистрироваться
+            </a>
+        </div>
+
+    </div>
+
+</div>
+<script>
+
+const form = document.getElementById("loginForm");
+
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const error = document.getElementById("error");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // скрываем старую ошибку
+    error.style.display = "none";
+
+    const payload = {
+        email: email.value,
+        password: password.value
+    };
+
+    try {
+        const response = await fetch("/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+
+            // показываем сообщение
+            error.style.display = "block";
+
+            // красная рамка
+            email.style.border = "2px solid #ef4444";
+            password.style.border = "2px solid #ef4444";
+
+            return;
+        }
+
+        const user = await response.json();
+
+        localStorage.setItem("user", JSON.stringify(user));
+
+        window.location.href = "/disk";
+
+    } catch (err) {
+        error.textContent = "Ошибка сервера";
+        error.style.display = "block";
+    }
+});
+
+// убрать красную рамку при вводе
+email.addEventListener("input", () => {
+    email.style.border = "";
+    password.style.border = "";
+    error.style.display = "none";
+});
+
+password.addEventListener("input", () => {
+    email.style.border = "";
+    password.style.border = "";
+    error.style.display = "none";
+});
+</script>
+</body>
+</html>

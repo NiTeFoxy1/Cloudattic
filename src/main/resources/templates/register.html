@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Регистрация | CloudAttic</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI",sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:
+    radial-gradient(circle at top right,
+    rgba(124,58,237,.3),
+    transparent 40%),
+    radial-gradient(circle at bottom left,
+    rgba(79,70,229,.3),
+    transparent 40%),
+    #0B1020;
+
+    color:white;
+}
+
+.container{
+    width:100%;
+    max-width:500px;
+    padding:20px;
+}
+
+.card{
+    background:#141B34;
+    border:1px solid rgba(124,58,237,.2);
+    border-radius:20px;
+    padding:40px;
+}
+
+.logo{
+    text-align:center;
+    font-size:32px;
+    font-weight:bold;
+    color:#8B5CF6;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#cbd5e1;
+    margin-bottom:35px;
+}
+
+.form-group{
+    margin-bottom:18px;
+    position:relative;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+}
+
+input{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#1e2747;
+    color:white;
+}
+
+input:focus{
+    outline:2px solid #7C3AED;
+}
+
+/* ❌ ошибка */
+.input-error{
+    outline:2px solid #ef4444 !important;
+}
+
+/* кнопка показать пароль */
+.toggle-pass{
+    position:absolute;
+    right:10px;
+    top:38px;
+    background:none;
+    border:none;
+    color:#cbd5e1;
+    cursor:pointer;
+    font-size:12px;
+}
+
+button.submit{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:bold;
+    color:white;
+
+    background:linear-gradient(
+        135deg,
+        #4F46E5,
+        #7C3AED
+    );
+}
+
+.footer-link{
+    text-align:center;
+    margin-top:20px;
+    color:#cbd5e1;
+}
+
+.footer-link a{
+    color:#8B5CF6;
+    text-decoration:none;
+}
+
+#error{
+    color:#f87171;
+    margin-bottom:10px;
+    display:none;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <div class="logo">☁ CloudAttic</div>
+
+        <p class="subtitle">
+            Создайте новый аккаунт
+        </p>
+
+       <form id="registerForm">
+
+            <div class="form-group">
+                <label>Имя пользователя</label>
+                <input type="text" id="username" required>
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" required>
+            </div>
+
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" id="password" required>
+                <button type="button" class="toggle-pass" onclick="togglePassword('password')">
+                    показать
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label>Повторите пароль</label>
+                <input type="password" id="confirmPassword" required>
+                <button type="button" class="toggle-pass" onclick="togglePassword('confirmPassword')">
+                    показать
+                </button>
+            </div>
+
+            <p id="error">
+                Пароли не совпадают
+            </p>
+
+            <button class="submit" type="submit">
+                Зарегистрироваться
+            </button>
+
+        </form>
+
+        <div class="footer-link">
+            Уже есть аккаунт?
+            <a href="/login">Войти</a>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const form = document.getElementById("registerForm");
+const error = document.getElementById("error");
+
+const username = document.getElementById("username");
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const confirmPassword = document.getElementById("confirmPassword");
+
+// восстановление данных (если была ошибка)
+window.addEventListener("load", () => {
+    username.value = localStorage.getItem("username") || "";
+    email.value = localStorage.getItem("email") || "";
+});
+
+// сохраняем ввод при наборе
+username.addEventListener("input", () => {
+    localStorage.setItem("username", username.value);
+});
+
+email.addEventListener("input", () => {
+    localStorage.setItem("email", email.value);
+});
+
+// убрать ошибку при исправлении
+[password, confirmPassword].forEach(input => {
+    input.addEventListener("input", () => {
+        password.classList.remove("input-error");
+        confirmPassword.classList.remove("input-error");
+        error.style.display = "none";
+    });
+});
+
+// показать / скрыть пароль
+function togglePassword(id) {
+    const field = document.getElementById(id);
+    field.type = field.type === "password" ? "text" : "password";
+}
+
+// submit
+form.addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    if (password.value !== confirmPassword.value) {
+
+        error.style.display = "block";
+
+        password.classList.add("input-error");
+        confirmPassword.classList.add("input-error");
+
+        return;
+    }
+
+    error.style.display = "none";
+
+    const user = {
+        username: username.value,
+        email: email.value,
+        password: password.value
+    };
+
+    try {
+        const response = await fetch("/auth/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(user)
+        });
+
+        if (response.ok) {
+            localStorage.clear();
+            window.location.href = "/login";
+        } else {
+            alert("Ошибка регистрации");
+        }
+
+    } catch (err) {
+        alert("Ошибка сервера");
+    }
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title th:text="${file.originalName} + ' | CloudAttic'">
+    Публичный файл | CloudAttic
+</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI",sans-serif;
+}
+
+body{
+    background:#0B1020;
+    color:white;
+    line-height:1.6;
+}
+
+/* HEADER */
+
+header{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:rgba(11,16,32,.95);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(124,58,237,.2);
+}
+
+.navbar{
+    max-width:1200px;
+    margin:auto;
+    padding:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    font-size:28px;
+    font-weight:bold;
+    color:#8B5CF6;
+    text-decoration:none;
+}
+
+.nav-links{
+    display:flex;
+    gap:30px;
+}
+
+.nav-links a{
+    text-decoration:none;
+    color:white;
+    transition:.3s;
+}
+
+.nav-links a:hover{
+    color:#8B5CF6;
+}
+
+.auth-buttons{
+    display:flex;
+    gap:10px;
+}
+
+.btn{
+    padding:10px 14px;
+    border-radius:10px;
+    text-decoration:none;
+    color:white;
+}
+
+.btn-primary{
+    background:linear-gradient(
+        135deg,
+        #4F46E5,
+        #7C3AED
+    );
+}
+
+/* HERO */
+
+.hero{
+    padding:80px 20px;
+    text-align:center;
+
+    background:
+    radial-gradient(circle at top right,
+    rgba(124,58,237,.25),
+    transparent 40%),
+    radial-gradient(circle at bottom left,
+    rgba(79,70,229,.25),
+    transparent 40%);
+}
+
+.hero h1{
+    font-size:3rem;
+    margin-bottom:15px;
+}
+
+.hero p{
+    color:#cbd5e1;
+}
+
+/* CONTENT */
+
+.container{
+    max-width:900px;
+    margin:60px auto;
+    padding:0 20px;
+}
+
+.card{
+    background:#141B34;
+    border:1px solid rgba(124,58,237,.2);
+    border-radius:18px;
+    padding:35px;
+    margin-bottom:30px;
+}
+
+.card h2{
+    color:#a78bfa;
+    margin-bottom:20px;
+}
+
+.file-info{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+    color:#cbd5e1;
+}
+
+.file-name{
+    font-size:24px;
+    color:white;
+    word-break:break-word;
+}
+
+.download-btn{
+    display:inline-block;
+    margin-top:25px;
+    padding:15px 30px;
+    border-radius:12px;
+    text-decoration:none;
+    color:white;
+    font-weight:bold;
+
+    background:linear-gradient(
+        135deg,
+        #4F46E5,
+        #7C3AED
+    );
+}
+
+.download-btn:hover{
+    opacity:.9;
+}
+
+.instruction-item{
+    margin-bottom:15px;
+    color:#cbd5e1;
+}
+
+/* FOOTER */
+
+footer{
+    background:#070B16;
+    border-top:1px solid rgba(124,58,237,.2);
+    text-align:center;
+    padding:30px;
+    color:#94a3b8;
+    margin-top:60px;
+}
+
+@media(max-width:768px){
+
+    .navbar{
+        flex-direction:column;
+        gap:20px;
+    }
+
+    .nav-links{
+        flex-wrap:wrap;
+        justify-content:center;
+    }
+
+    .hero h1{
+        font-size:2.2rem;
+    }
+
+}
+
+</style>
+</head>
+<body>
+
+<header>
+
+    <nav class="navbar">
+
+        <a href="/" class="logo">
+            ☁ CloudAttic
+        </a>
+
+        <div class="nav-links">
+            <a href="/">О нас</a>
+            <a href="/contacts">Контакты</a>
+            <a href="/find">Найти файл</a>
+        </div>
+
+        <div class="auth-buttons">
+            <a href="/login" class="btn btn-primary">
+                Войти
+            </a>
+        </div>
+
+    </nav>
+
+</header>
+
+<section class="hero">
+
+    <h1>Публичный файл</h1>
+
+    <p>
+        Пользователь CloudAttic поделился с вами файлом.
+    </p>
+
+</section>
+
+<section class="container">
+
+    <div class="card">
+
+        <h2>Информация о файле</h2>
+
+        <div class="file-info">
+
+            <div>
+                <strong>Имя файла:</strong>
+            </div>
+
+            <div class="file-name"
+                 th:text="${file.originalName}">
+                document.pdf
+            </div>
+
+            <div>
+                <strong>Размер:</strong>
+                <span th:text="${file.size}"></span>
+                байт
+            </div>
+
+        </div>
+
+        <a class="download-btn"
+           th:href="@{/public/download/{token}(token=${token})}">
+            📥 Открыть файл
+        </a>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Как скачать файл?</h2>
+
+        <div class="instruction-item">
+            1️⃣ Нажмите кнопку «Открыть файл».
+        </div>
+
+        <div class="instruction-item">
+            2️⃣ После открытия файла нажмите правую кнопку мыши.
+        </div>
+
+        <div class="instruction-item">
+            3️⃣ Выберите пункт «Сохранить как...» или «Сохранить файл».
+        </div>
+
+        <div class="instruction-item">
+            4️⃣ Укажите место сохранения на компьютере.
+        </div>
+
+    </div>
+
+</section>
+
+<footer>
+
+    <p>© 2026 CloudAttic</p>
+
+    <p>
+        Учебный проект по разработке веб-приложений
+    </p>
+
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 | CloudAttic</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI",sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+
+    background:
+    radial-gradient(circle at top right,
+    rgba(124,58,237,.3),
+    transparent 40%),
+    radial-gradient(circle at bottom left,
+    rgba(79,70,229,.3),
+    transparent 40%),
+    #0B1020;
+
+    color:white;
+}
+
+.container{
+    text-align:center;
+    padding:40px;
+}
+
+.error-code{
+    font-size:10rem;
+    font-weight:900;
+    line-height:1;
+
+    background:linear-gradient(
+        135deg,
+        #4F46E5,
+        #7C3AED,
+        #A855F7
+    );
+
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.title{
+    font-size:2.5rem;
+    margin-top:20px;
+    margin-bottom:15px;
+}
+
+.description{
+    color:#cbd5e1;
+    max-width:600px;
+    margin:auto;
+    margin-bottom:40px;
+    font-size:1.1rem;
+}
+
+.btn{
+    display:inline-block;
+
+    padding:15px 35px;
+    border-radius:14px;
+
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+
+    background:linear-gradient(
+        135deg,
+        #4F46E5,
+        #7C3AED
+    );
+
+    transition:0.3s;
+}
+
+.btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 10px 25px rgba(124,58,237,.35);
+}
+
+.cloud{
+    position:absolute;
+    opacity:.05;
+    font-size:20rem;
+    pointer-events:none;
+}
+
+.cloud1{
+    top:-50px;
+    left:-50px;
+}
+
+.cloud2{
+    bottom:-50px;
+    right:-50px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="cloud cloud1">☁</div>
+<div class="cloud cloud2">☁</div>
+
+<div class="container">
+
+    <div class="error-code">404</div>
+
+    <h1 class="title">
+        Страница не найдена
+    </h1>
+
+    <p class="description">
+        Похоже, файл, ссылка или страница были удалены,
+        перемещены или никогда не существовали.
+        Вернитесь на главную страницу CloudAttic.
+    </p>
+
+    <a href="/" class="btn">
+        На главную
+    </a>
+
+</div>
+
+</body>
+</html>
