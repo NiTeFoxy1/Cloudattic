@@ -120,11 +120,11 @@ public class DiskController {
     
     @PostMapping("/folder/delete/{id}")
     @ResponseBody
-    public void deleteFolder(@PathVariable Long id) {
+    public void deleteFolder(@PathVariable Long id) throws IOException {  // добавить throws IOException
         log.warn("Delete folder id={}", id);
         folderService.deleteFolder(id);
     }
-    
+
     @GetMapping("/folder/download/{id}")
     public ResponseEntity<Resource> downloadFolder(@PathVariable Long id) throws IOException {
         log.info("Download folder id={} as ZIP", id);

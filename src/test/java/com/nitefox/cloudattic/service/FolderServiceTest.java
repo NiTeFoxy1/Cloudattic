@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
@@ -24,18 +25,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import org.springframework.http.HttpHeaders;
+;
 /**
  *
  * @author NiTeFox
  */
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 
+/**
+ *
+ * @author NiTeFox
+ */
 
 @ExtendWith(MockitoExtension.class)
 class FolderServiceTest {
 
     @Mock
     private FolderRepository folderRepository;
+
+    @Mock
+    private FileService fileService;   // добавлен мок
 
     @InjectMocks
     private FolderService folderService;
@@ -131,10 +143,13 @@ class FolderServiceTest {
     }
 
     @Test
-    void deleteFolder_ShouldCallRepositoryDelete() {
+    void deleteFolder_ShouldCallRepositoryDelete() throws IOException {
         when(folderRepository.findById(10L)).thenReturn(Optional.of(rootFolder));
+        // Нет файлов → fileService.deleteFile не будет вызван, поэтому не нужно его стаббить
+
         folderService.deleteFolder(10L);
         verify(folderRepository).delete(rootFolder);
+        verify(fileService, never()).deleteFile(anyLong()); // убедимся, что не вызывался
     }
 
     @Test
@@ -145,12 +160,14 @@ class FolderServiceTest {
     }
 
     @Test
-    void downloadFolderAsZip_ShouldReturnZipResponse() throws IOException {
+    void downloadFolderAsZip_ShouldReturnZipResponseForEmptyFolder() throws IOException {
         when(folderRepository.findById(10L)).thenReturn(Optional.of(rootFolder));
-        // Так как zipFolder работает с реальными файлами, для простоты протестируем только что метод выполняется без ошибок
+        // rootFolder не имеет файлов и детей -> создастся пустой ZIP-архив
         ResponseEntity<Resource> response = folderService.downloadFolderAsZip(10L);
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
         assertThat(response.getHeaders().getFirst(HttpHeaders.CONTENT_DISPOSITION)).contains("attachment");
         assertThat(response.getBody()).isNotNull();
+        // Даже пустой ZIP имеет минимальный размер (заголовки)
+        assertThat(response.getBody().contentLength()).isGreaterThan(0);
     }
 }

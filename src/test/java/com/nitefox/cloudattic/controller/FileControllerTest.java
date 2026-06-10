@@ -1,21 +1,20 @@
-// FileControllerTest.java
 package com.nitefox.cloudattic.controller;
 
 import com.nitefox.cloudattic.config.TestSecurityConfig;
 import com.nitefox.cloudattic.entity.FileEntity;
 import com.nitefox.cloudattic.entity.User;
 import com.nitefox.cloudattic.service.FileService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -32,11 +31,23 @@ class FileControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
+    @MockBean
     private FileService fileService;
 
+    private User testUser;
+
+    @BeforeEach
+    void setUp() {
+        testUser = new User();
+        testUser.setId(1L);
+        testUser.setUsername("testuser");
+        // Не вызываем getAuthorities() – передаём null для authorities
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(testUser, null, null);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
     @Test
-    @WithMockUser
     void upload_shouldReturnFileEntity() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "content".getBytes());
         FileEntity fileEntity = new FileEntity();
@@ -52,7 +63,6 @@ class FileControllerTest {
     }
 
     @Test
-    @WithMockUser
     void download_shouldReturnResource() throws Exception {
         Resource resource = new ByteArrayResource("data".getBytes());
         when(fileService.downloadFile(eq(1L), any()))
@@ -73,7 +83,6 @@ class FileControllerTest {
     }
 
     @Test
-    @WithMockUser
     void open_shouldReturnResource() throws Exception {
         Resource resource = new ByteArrayResource("data".getBytes());
         when(fileService.openFile(eq(1L), any()))
@@ -84,7 +93,6 @@ class FileControllerTest {
     }
 
     @Test
-    @WithMockUser
     void generatePublic_shouldReturnToken() throws Exception {
         when(fileService.generatePublicLink(1L)).thenReturn("public-token");
 
@@ -104,7 +112,6 @@ class FileControllerTest {
     }
 
     @Test
-    @WithMockUser
     void deleteFile_shouldReturnOk() throws Exception {
         doNothing().when(fileService).deleteFile(1L);
 
@@ -113,7 +120,6 @@ class FileControllerTest {
     }
 
     @Test
-    @WithMockUser
     void renameFile_shouldReturnOk() throws Exception {
         doNothing().when(fileService).renameFile(1L, "newName");
 

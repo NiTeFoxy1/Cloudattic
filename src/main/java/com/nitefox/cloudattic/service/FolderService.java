@@ -8,6 +8,7 @@ import com.nitefox.cloudattic.entity.FileEntity;
 import com.nitefox.cloudattic.entity.Folder;
 import com.nitefox.cloudattic.entity.User;
 import com.nitefox.cloudattic.repository.FolderRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.http.ContentDisposition;
 import java.nio.charset.StandardCharsets;
 import java.io.ByteArrayOutputStream;
@@ -34,9 +35,10 @@ import org.springframework.http.ResponseEntity;
 @Service
 @RequiredArgsConstructor
 public class FolderService {
-
+    
     private final FolderRepository folderRepository;
-
+    private final FileService fileService;
+    
     public Folder createFolder(String name, User user, Long parentId) {
         log.info("Creating folder '{}' for user {}, parentId={}", name, user.getUsername(), parentId);
         Folder folder = new Folder();
@@ -68,11 +70,24 @@ public class FolderService {
         folderRepository.save(folder);
     }
 
-    public void deleteFolder(Long id) {
+    @Transactional
+    public void deleteFolder(Long id) throws IOException {
         log.warn("Deleting folder id={}", id);
         Folder folder = folderRepository.findById(id).orElseThrow();
+        deleteFolderContents(folder);
         folderRepository.delete(folder);
         log.info("Folder id={} deleted", id);
+    }
+
+    // Можно также добавить @Transactional, но если вызывается из deleteFolder, транзакция уже есть
+    private void deleteFolderContents(Folder folder) throws IOException {
+        for (FileEntity file : folder.getFiles()) {
+            fileService.deleteFile(file.getId());
+        }
+        for (Folder child : folder.getChildren()) {
+            deleteFolderContents(child);
+            folderRepository.delete(child);
+        }
     }
 
     public Folder getFolder(Long id) {

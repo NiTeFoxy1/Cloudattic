@@ -38,6 +38,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 /**
  *
  * @author NiTeFox
@@ -188,15 +189,26 @@ public class FileService {
         log.debug("File renamed successfully");
     }
     
+    @Transactional
     public void deleteFile(Long id) throws IOException {
         log.warn("Deleting file id={}", id);
         FileEntity file = fileRepository.findById(id).orElseThrow();
+
+        // 1. Удаляем связанные публичные ссылки
         List<ShareLink> links = shareLinkRepository.findAllByFile(file);
         if (!links.isEmpty()) {
             log.debug("Deleting {} associated share links", links.size());
             shareLinkRepository.deleteAll(links);
         }
+
+        // 2. Удаляем историю скачиваний
+        downloadHistoryRepository.deleteByFile(file);
+        log.debug("Deleted download history for file id={}", id);
+
+        // 3. Удаляем физический файл
         Files.deleteIfExists(Paths.get(file.getPath()));
+
+        // 4. Удаляем запись из БД
         fileRepository.delete(file);
         log.info("File id={} deleted", id);
     }
